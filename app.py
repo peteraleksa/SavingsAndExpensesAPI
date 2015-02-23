@@ -2,9 +2,46 @@
 
 from flask import Flask, jsonify, make_response, request, url_for
 from flask.ext.httpauth import HTTPBasicAuth
+from flask.ext.sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
+db = SQLAlchemy(app)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://savings:expenses@localhost/savings_and_expenses'
+
+class User(db.Model):
+	__tablename__ = 'user'
+	_id = db.Column(db.Integer, primary_key = True, nullable=False)
+	name = db.Column(db.String(25), nullable=False)
+	email = db.Column(db.String(50), nullable=True)
+	password = db.Column(db.String(25), nullable=False)
+
+class Team(db.Model):
+	__tablename__ = 'team'
+	_id = db.Column(db.Integer, primary_key = True, nullable=False)
+	name = db.Column(db.String(50), nullable=False)
+	description = db.Column(db.String(250), nullable=True)
+
+class Expense(db.Model):
+	__tablename__ = 'expense'
+	_id = db.Column(db.Integer, primary_key = True, nullable=False)
+	name = db.Column(db.String(50), nullable=False)
+	description = db.Column(db.String(250), nullable=True)
+	amount = db.Column(db.Float(10, 2), nullable=False)
+	recurring = db.Column(db.Boolean, nullable=False)
+	frequency = db.Column(db.Integer, nullable=True)
+
+class Goal(db.Model):
+	__tablename__ = 'goal'
+	_id = db.Column(db.Integer, primary_key = True, nullable=False)
+	name = db.Column(db.String(50), nullable=False)
+	description = db.Column(db.String(250), nullable=True)
+	amount = db.Column(db.Float(10, 2), nullable=False)
+	start_date = db.Column(db.Date, nullable=False)
+	target_date = db.Column(db.Date, nullable=False)
+	end_date = db.Column(db.Date, nullable=False)
+	priority = db.Column(db.Integer, nullable=False)
 
 @auth.get_password
 def get_password(username):
@@ -30,10 +67,17 @@ def get_user(user_id):
 	# get user from db
 	pass
 
-@app.route('/expsav/api/v1.0/groups', methods=['GET'])
+@app.route('/expsav/api/v1.0/teams', methods=['GET'])
 @auth.login_required
 def get_groups():
-	return jsonify({'groups': groups})
+	if request.method == 'GET':
+		results = Team.query.limit(10).offset(0).all()
+
+		json_results = []
+		for result in results:
+			d = {'_id': result.}
+
+	return jsonify({'teams': teams})
 
 @app.route('/expsav/api/v1.0/groups/<int:group_id>', methods=['GET'])
 @auth.login_required
