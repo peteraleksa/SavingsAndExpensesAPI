@@ -11,6 +11,7 @@ CREATE TABLE user (
 
 ) ENGINE = MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci;
 
+
 CREATE TABLE team (
 
 	_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -190,3 +191,4 @@ CREATE TABLE team_expense (
 
 ) ENGINE = MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci;
 
+GRANT all ON savings_and_expenses.* to 'savings'@localhost;
