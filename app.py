@@ -17,7 +17,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://savings:expenses@localhost/savi
 
 user_teams = db.Table('user_team',
 	db.Column('team_id', db.Integer, db.ForeignKey('team._id')),
-	db.Column('user_id', db.Integer, db.ForiegnKey('user._id'))
+	db.Column('user_id', db.Integer, db.ForeignKey('user._id'))
 )
 
 user_goals = db.Table('user_goal',
@@ -32,7 +32,7 @@ user_goal_schedules = db.Table('user_goal_schedule',
 
 user_deposits = db.Table('user_deposit',
 	db.Column('user_id', db.Integer, db.ForeignKey('user._id')),
-	db.Column('deposit_id', db.Integer, db.ForienKey('deposit._id'))
+	db.Column('deposit_id', db.Integer, db.ForeignKey('deposit._id'))
 )
 
 team_goals = db.Table('team_goal',
@@ -104,7 +104,7 @@ class Deposit(db.Model):
 	dep_date = db.Column(db.Date, nullable=False)
 	amount = db.Column(db.Float, nullable=False)
 	verified = db.Column(db.Boolean, nullable=False)
-	allocations = db.relationship('DepositAllocation', backref='deposit', lazy='dynamic')
+	allocations = db.relationship('Allocation', backref='deposit', lazy='dynamic')
 
 class Allocation(db.Model):
 	__tablename__ = 'deposit_allocation'
@@ -119,8 +119,8 @@ class Allocation(db.Model):
 
 @auth.get_password
 def get_password(username):
-	if username == 'pete':
-		return 'python'
+	if username == 'savings':
+		return 'expenses'
 	return None
 
 @auth.error_handler
@@ -185,20 +185,25 @@ def create_user():
 
 	return jsonify({'user': user}), 201
 
-@app.route('expsav/api/v1.0/groups', methods=['POST'])
+@app.route('/expsav/api/v1.0/teams', methods=['POST'])
 @auth.login_required
-def create_group():
+def create_team():
 	if not request.json or not 'name' in request.json:
 		abort(400)
-	group = {
-		'name': request.json['name'],
-		'description' = request.json.get('description', "")
-	}
+
+	team = Team(name=request.json['name'],
+				description=request.json.get('description', "")
+			)
+	#team = {
+	#	'name': request.json['name'],
+	#	'description' = request.json.get('description', "")
+	#}
 
 	# add to db
-	#
+	db.session.add(team)
+	db.session.commit()
 
-	return jsonify({'group': group}), 201
+	return jsonify({'team': team}), 201
 
 if __name__ == '__main__':
 	app.run(debug=True)
