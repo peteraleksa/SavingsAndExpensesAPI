@@ -51,7 +51,7 @@ CREATE TABLE goal_schedule (
 	_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	goal_id INT NOT NULL,
 	frequency INT NOT NULL,
-	amount DOUBLE(10, 2),
+	amount DOUBLE(10, 2) NOT NULL,
 
 	INDEX (goal_id),
 
@@ -76,7 +76,7 @@ CREATE TABLE deposit_allocation (
 	_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	deposit_id INT NOT NULL,
 	goal_id INT NOT NULL,
-	percentage INT,
+	percentage INT NOT NULL,
 
 	INDEX (deposit_id),
 	INDEX (goal_id),
