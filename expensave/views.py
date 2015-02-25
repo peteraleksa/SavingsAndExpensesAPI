@@ -5,11 +5,21 @@ from flask import jsonify, make_response, request, url_for
 from flask.ext.httpauth import HTTPBasicAuth
 from expensave.models import User, Team, Expense, Goal, Schedule, Deposit, Allocation
 
+from expensave.database import db_session
+
 auth = HTTPBasicAuth()
 
-#
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+	db_session.remove()
+
+def perform_login():
+	pass
+
+def show_login_form():
+	pass
+
 # Routes:
-#
 
 @auth.get_password
 def get_password(username):
@@ -24,6 +34,13 @@ def unauthorized():
 @app.errorhandler(404)
 def not_found(error):
 	return make_response(jsonify({'error': 'Not found'}), 404)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+	if request.method == 'POST':
+		perform_login()
+	else:
+		show_login_form()
 
 #@app.route('/expsav/api/v1.0/me', methods=['GET'])
 #def get_my_profile():
@@ -68,16 +85,20 @@ def get_group(group_id):
 def create_user():
 	if not request.json or not 'name' in request.json or not 'password' in request.json:
 		abort(400)
-	user = {
-		'name': request.json['name'],
-		'email': request.json.get('email', ""),
-		'password': request.json['password']
+
+	user = User(name=request.json['name'],
+				password=request.json['password'],
+				email=request.json.get('email', ""))
+
+	user.save()
+
+	user_dict = {
+		'name': user.name,
+		'email': user.email,
+		'password': user.password
 	}
 
-	# add to dbase
-	#
-
-	return jsonify({'user': user}), 201
+	return jsonify({'user': user_dict}), 201
 
 @app.route('/expsav/api/v1.0/teams', methods=['POST'])
 @auth.login_required
@@ -89,13 +110,13 @@ def create_team():
 				description=request.json.get('description', "")
 			)
 
-	# add to db
 	team.save()
 
-	team_json = {
+	team_dict = {
 		'id': team._id,
 		'name': team.name,
 		'description': team.description
 	}
 
-	return jsonify({'team': team_json}), 201
+
+	return jsonify({'team': team_dict}), 201
